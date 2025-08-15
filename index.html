@@ -60,21 +60,41 @@
       color: #555;
       min-width: 40px;
     }
-    button {
-      width: 100%;
-      background: #0078d4;
-      color: white;
-      border: none;
-      padding: 0.7rem;
-      border-radius: 5px;
-      font-size: 1.1rem;
-      margin-top: 20px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    button:hover {
-      background: #005a9e;
-    }
+    form button[type="submit"] {
+  width: 100%;
+  background: #28a745; /* Green */
+  color: white;
+  border: none;
+  padding: 0.7rem;
+  border-radius: 5px;
+  font-size: 1.1rem;
+  margin-top: 15px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+form button[type="submit"]:hover {
+  background: #1e7e34;
+}
+
+#erasePayLaterContainer {
+  max-width: 400px;
+  margin: 25px auto 0 auto;
+}
+
+#erasePayLaterBtn {
+  width: 100%;
+  background: #dc3545; /* Red */
+  color: white;
+  border: none;
+  padding: 0.7rem;
+  border-radius: 5px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+#erasePayLaterBtn:hover {
+  background: #b02a37;
+}
     @media (max-width: 480px) {
       form {
         padding: 1rem;
@@ -120,7 +140,9 @@
 <button type="submit">Submit</button>
   </form>
 
-<button type="button" id="erasePayLaterBtn">Erase Pay Later</button>
+<div style="max-width: 400px; margin: 20px auto;">
+  <button type="button" id="erasePayLaterBtn">Erase Pay Later</button>
+</div>
 
 <div id="eraseModal" style="display:none; position:fixed; top:20%; left:30%; background:#fff; padding:20px; border:1px solid #ccc; z-index:1000;">
   <h3>Erase Pay Later Items</h3>
