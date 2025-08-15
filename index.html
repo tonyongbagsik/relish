@@ -6,103 +6,105 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#0078d4" />
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, sans-serif;
-      background: #f8f9fa;
-      padding: 20px;
-      margin: 0;
-    }
-    h2 {
-      text-align: center;
-      color: #333;
-    }
-    form {
-      max-width: 400px;
-      margin: auto;
-      background: #fff;
-      padding: 1.5rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    label {
-      display: block;
-      margin-top: 15px;
-      font-weight: 600;
-      font-size: 0.9rem;
-      color: #333;
-    }
-    input, select, textarea {
-      width: 100%;
-      padding: 0.45rem 0.5rem;
-      margin-top: 5px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 1rem;
-      box-sizing: border-box;
-      transition: border-color 0.2s;
-    }
-    input:focus, select:focus, textarea:focus {
-      border-color: #0078d4;
-      outline: none;
-    }
-    .quantity-unit {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .quantity-unit input {
-      flex: 1;
-    }
-    .unit-label {
-      white-space: nowrap;
-      font-size: 0.9rem;
-      color: #555;
-      min-width: 40px;
-    }
-    form button[type="submit"] {
-  width: 100%;
-  background: #28a745; /* Green */
-  color: white;
-  border: none;
-  padding: 0.7rem;
-  border-radius: 5px;
-  font-size: 1.1rem;
-  margin-top: 15px;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-form button[type="submit"] {
-  background: orange !important;
-}
-form button[type="submit"] {
-  margin-bottom: 20px; /* dagdag na space bago Erase Pay Later */
-}
-#erasePayLaterContainer {
-  max-width: 400px;
-  margin: 25px auto 0 auto;
-}
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: #f8f9fa;
+    padding: 20px;
+    margin: 0;
+  }
+  h2 {
+    text-align: center;
+    color: #333;
+  }
+  form {
+    max-width: 400px;
+    margin: auto;
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  }
+  label {
+    display: block;
+    margin-top: 15px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #333;
+  }
+  input, select, textarea {
+    width: 100%;
+    padding: 0.45rem 0.5rem;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: #0078d4;
+    outline: none;
+  }
+  .quantity-unit {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .quantity-unit input {
+    flex: 1;
+  }
+  .unit-label {
+    white-space: nowrap;
+    font-size: 0.9rem;
+    color: #555;
+    min-width: 40px;
+  }
 
-#erasePayLaterBtn {
-  width: 100%;
-  background: #dc3545; /* Red */
-  color: white;
-  border: none;
-  padding: 0.7rem;
-  border-radius: 5px;
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-#erasePayLaterBtn:hover {
-  background: #b02a37;
-}
-    @media (max-width: 480px) {
-      form {
-        padding: 1rem;
-      }
+  /* Submit Button - final version */
+  form button[type="submit"] {
+    width: 100%;
+    background: orange;
+    color: white;
+    border: none;
+    padding: 0.7rem;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    margin-top: 15px;
+    margin-bottom: 25px; /* clear space before erase button */
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  form button[type="submit"]:hover {
+    background: #e69500;
+  }
+
+  /* Erase Button container */
+  #erasePayLaterContainer {
+    max-width: 400px;
+    margin: auto;
+  }
+  #erasePayLaterBtn {
+    width: 100%;
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.7rem;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  #erasePayLaterBtn:hover {
+    background: #b02a37;
+  }
+
+  @media (max-width: 480px) {
+    form {
+      padding: 1rem;
     }
-  </style>
+  }
+</style>
 </head>
 <body>
 
@@ -140,9 +142,9 @@ form button[type="submit"] {
   <option value="Other">Other</option>
 </select>
 <button type="submit">Submit</button>
-  </form>
+</form>
 
-<div style="max-width: 400px; margin: 20px auto;">
+<div id="erasePayLaterContainer">
   <button type="button" id="erasePayLaterBtn">Erase Pay Later</button>
 </div>
 
