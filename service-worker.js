@@ -1,4 +1,4 @@
-const CACHE_NAME = 'staff-consumption-cache-v2';
+const CACHE_NAME = 'staff-consumption-cache-v2.1';
 const urlsToCache = [
   '/', // assuming index.html is at root
   '/index.html',
