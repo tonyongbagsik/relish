@@ -61,7 +61,7 @@
     min-width: 40px;
   }
 
-  /* Submit Button - final version */
+  /* Submit Button */
   form button[type="submit"] {
     width: 100%;
     background: orange;
@@ -71,18 +71,29 @@
     border-radius: 5px;
     font-size: 1.1rem;
     margin-top: 15px;
-    margin-bottom: 25px; /* clear space before erase button */
+    margin-bottom: 15px;
     cursor: pointer;
     transition: background 0.3s;
+    position: relative;
+    z-index: 10;
   }
   form button[type="submit"]:hover {
     background: #e69500;
   }
 
-  /* Erase Button container */
+  /* Separator between sections */
+  .section-separator {
+    max-width: 400px;
+    margin: 30px auto;
+    border-top: 2px solid #ddd;
+  }
+
+  /* Erase Pay Later container */
   #erasePayLaterContainer {
     max-width: 400px;
-    margin: auto;
+    margin: 20px auto;
+    position: relative;
+    z-index: 1;
   }
   #erasePayLaterBtn {
     width: 100%;
@@ -109,8 +120,9 @@
 <body>
 
   <h2>Staff Daily Consumption</h2>
-  <form id="consumptionForm">
 
+  <!-- Form Section -->
+  <form id="consumptionForm">
     <label for="date">Date</label>
     <input type="date" id="date" name="date" required />
 
@@ -131,39 +143,41 @@
     </div>
 
     <label for="reason">Reason</label>
-<select id="reason" name="reason" required>
-  <option value="">--Select Reason--</option>
-  <option value="Complimentary">Complimentary</option>
-  <option value="Pay Later">Pay Later</option>
-  <option value="Managers Cup">Managers Cup</option>
-  <option value="Personal Use">Personal Use</option>
-  <option value="For Maintenance Worker">For Maintenance Worker</option>
-  <option value="Badgering-Give and report to manager">Badgering - Give and report to manager</option>
-  <option value="Other">Other</option>
-</select>
+    <select id="reason" name="reason" required>
+      <option value="">--Select Reason--</option>
+      <option value="Complimentary">Complimentary</option>
+      <option value="Pay Later">Pay Later</option>
+      <option value="Managers Cup">Managers Cup</option>
+      <option value="Personal Use">Personal Use</option>
+      <option value="For Maintenance Worker">For Maintenance Worker</option>
+      <option value="Badgering-Give and report to manager">Badgering - Give and report to manager</option>
+      <option value="Other">Other</option>
+    </select>
 
-<button type="submit">Submit</button>
+    <button type="submit">Submit</button>
+  </form>
 
-</form>
+  <!-- Separator -->
+  <div class="section-separator"></div>
 
-<div id="erasePayLaterContainer">
-  <button type="button" id="erasePayLaterBtn">Erase Pay Later</button>
-</div>
+  <!-- Erase Pay Later Section -->
+  <div id="erasePayLaterContainer">
+    <button type="button" id="erasePayLaterBtn">Erase Pay Later</button>
+  </div>
 
-<div id="eraseModal" style="display:none; position:fixed; top:20%; left:30%; background:#fff; padding:20px; border:1px solid #ccc; z-index:1000;">
-  <h3>Erase Pay Later Items</h3>
-  <label>Staff:</label>
-  <select id="eraseStaffSelect"></select>
-  
-  <div id="payLaterItems" style="margin-top:10px; max-height:200px; overflow-y:auto;"></div>
+  <!-- Erase Modal -->
+  <div id="eraseModal" style="display:none; position:fixed; top:20%; left:30%; background:#fff; padding:20px; border:1px solid #ccc; z-index:1000;">
+    <h3>Erase Pay Later Items</h3>
+    <label>Staff:</label>
+    <select id="eraseStaffSelect"></select>
+    
+    <div id="payLaterItems" style="margin-top:10px; max-height:200px; overflow-y:auto;"></div>
 
-  <button id="submitErase">Submit</button>
-  <button id="closeErase">Cancel</button>
-</div>
-
+    <button id="submitErase">Submit</button>
+    <button id="closeErase">Cancel</button>
+  </div>
 
 <script>
-
   const form = document.getElementById('consumptionForm');
   const baseApiUrl = 'https://script.google.com/macros/s/AKfycbx8N8XbkKthFtjBpH70LATLH9kEVVbSJp2MB4QecZ26TsCZLuHfaU9J_IsRcJiWFHcacQ/exec';
   const staffApiUrl = baseApiUrl + '?type=staff';
@@ -203,7 +217,7 @@
       });
     });
 
-  // Handle submit with offline storage
+  // Handle submit
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const formData = {
@@ -230,86 +244,72 @@
     }
   });
 
-// Erase Pay Later Button Click
-document.getElementById("erasePayLaterBtn").addEventListener("click", async function() {
-  let submitBtn = document.getElementById("submitErase");
-  submitBtn.disabled = true; // default disabled
+  // Erase Pay Later
+  document.getElementById("erasePayLaterBtn").addEventListener("click", async function() {
+    let submitBtn = document.getElementById("submitErase");
+    submitBtn.disabled = true;
 
-  // Load staff list
-  let staffList = await fetch(baseApiUrl + "?type=staff").then(r => r.json());
-  let staffSelect = document.getElementById("eraseStaffSelect");
+    let staffList = await fetch(baseApiUrl + "?type=staff").then(r => r.json());
+    let staffSelect = document.getElementById("eraseStaffSelect");
+    staffSelect.innerHTML = `<option value="">-- Select Staff --</option>` + 
+      staffList.map(s => `<option value="${s}">${s}</option>`).join("");
 
-  // May placeholder na walang value
-  staffSelect.innerHTML = `<option value="">-- Select Staff --</option>` + 
-    staffList.map(s => `<option value="${s}">${s}</option>`).join("");
-
-  // Clear old items
-  document.getElementById("payLaterItems").innerHTML = "";
-
-  // Show modal
-  document.getElementById("eraseModal").style.display = "block";
-});
-
-// Load Pay Later items when selecting staff
-document.getElementById("eraseStaffSelect").addEventListener("change", async function() {
-  let staffName = this.value;
-  let submitBtn = document.getElementById("submitErase");
-  submitBtn.disabled = true; // disable muna hanggang may napiling item
-
-  if (!staffName) {
     document.getElementById("payLaterItems").innerHTML = "";
-    return;
-  }
+    document.getElementById("eraseModal").style.display = "block";
+  });
 
-  // GET filtered Pay Later items directly from backend
-  let payLater = await fetch(baseApiUrl + "?type=paylater&staff=" + encodeURIComponent(staffName))
-    .then(r => r.json());
+  document.getElementById("eraseStaffSelect").addEventListener("change", async function() {
+    let staffName = this.value;
+    let submitBtn = document.getElementById("submitErase");
+    submitBtn.disabled = true;
 
-  // Build checkbox list
-  let html = payLater.map(p => 
-    `<label>
-      <input type="checkbox" value="${p.item}"> ${p.item} (${p.quantity} ${p.unit})
-    </label><br>`
-  ).join("");
+    if (!staffName) {
+      document.getElementById("payLaterItems").innerHTML = "";
+      return;
+    }
 
-  document.getElementById("payLaterItems").innerHTML = html || "<p>No Pay Later items.</p>";
+    let payLater = await fetch(baseApiUrl + "?type=paylater&staff=" + encodeURIComponent(staffName))
+      .then(r => r.json());
 
-  // Listen sa change ng checkboxes para i-enable ang submit
-  document.querySelectorAll("#payLaterItems input[type='checkbox']").forEach(cb => {
-    cb.addEventListener("change", function() {
-      let itemsChecked = document.querySelectorAll("#payLaterItems input:checked").length;
-      submitBtn.disabled = !(staffName && itemsChecked > 0);
+    let html = payLater.map(p => 
+      `<label>
+        <input type="checkbox" value="${p.item}"> ${p.item} (${p.quantity} ${p.unit})
+      </label><br>`
+    ).join("");
+
+    document.getElementById("payLaterItems").innerHTML = html || "<p>No Pay Later items.</p>";
+
+    document.querySelectorAll("#payLaterItems input[type='checkbox']").forEach(cb => {
+      cb.addEventListener("change", function() {
+        let itemsChecked = document.querySelectorAll("#payLaterItems input:checked").length;
+        submitBtn.disabled = !(staffName && itemsChecked > 0);
+      });
     });
   });
-});
 
-// Submit Erase
-document.getElementById("submitErase").addEventListener("click", async function() {
-  let staffName = document.getElementById("eraseStaffSelect").value;
-  let items = [...document.querySelectorAll("#payLaterItems input:checked")].map(cb => cb.value);
+  document.getElementById("submitErase").addEventListener("click", async function() {
+    let staffName = document.getElementById("eraseStaffSelect").value;
+    let items = [...document.querySelectorAll("#payLaterItems input:checked")].map(cb => cb.value);
 
-  if (items.length === 0) {
-    alert("Select at least one item.");
-    return;
-  }
+    if (items.length === 0) {
+      alert("Select at least one item.");
+      return;
+    }
 
-  let formData = new URLSearchParams();
-  formData.append("action", "erase");
-  formData.append("staff", staffName);
-  formData.append("items", JSON.stringify(items));
+    let formData = new URLSearchParams();
+    formData.append("action", "erase");
+    formData.append("staff", staffName);
+    formData.append("items", JSON.stringify(items));
 
-  let res = await fetch(baseApiUrl, { method: "POST", body: formData });
-  alert(await res.text());
-  document.getElementById("eraseModal").style.display = "none";
-});
+    let res = await fetch(baseApiUrl, { method: "POST", body: formData });
+    alert(await res.text());
+    document.getElementById("eraseModal").style.display = "none";
+  });
 
-// Close modal
-document.getElementById("closeErase").addEventListener("click", function() {
-  document.getElementById("eraseModal").style.display = "none";
-});
+  document.getElementById("closeErase").addEventListener("click", function() {
+    document.getElementById("eraseModal").style.display = "none";
+  });
 
-
-  // Send saved data when online
   window.addEventListener('online', async () => {
     let offlineData = JSON.parse(localStorage.getItem('offlineSubmissions') || '[]');
     if (offlineData.length > 0) {
@@ -323,56 +323,6 @@ document.getElementById("closeErase").addEventListener("click", function() {
       alert("Offline data synced to server.");
     }
   });
-
-  // Install prompt handler
-  let deferredPrompt;
-  const installBanner = document.createElement('div');
-  installBanner.style.cssText = `
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #0078d4;
-    color: white;
-    padding: 10px 15px;
-    border-radius: 8px;
-    font-size: 14px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    cursor: pointer;
-    z-index: 9999;
-    display: none;
-  `;
-
-  const isIOS = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
-  const isInStandaloneMode = ('standalone' in window.navigator) && window.navigator.standalone;
-
-  if (isIOS && !isInStandaloneMode) {
-    installBanner.textContent = '📲 I-tap ang Share, tapos piliin "Add to Home Screen"';
-    document.body.appendChild(installBanner);
-    installBanner.style.display = 'block';
-  }
-
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    installBanner.textContent = '📲 Install App';
-    document.body.appendChild(installBanner);
-    installBanner.style.display = 'block';
-    installBanner.addEventListener('click', () => {
-      installBanner.style.display = 'none';
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then(() => deferredPrompt = null);
-    });
-  });
-
-  // Register Service Worker (one time only)
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/service-worker.js')
-      .then(reg => console.log('Service Worker registered:', reg.scope))
-      .catch(err => console.log('Service Worker registration failed:', err));
-    });
-  }
 </script>
 
 </body>
