@@ -4,43 +4,29 @@
   <meta charset="UTF-8" />
   <title>Staff Consumption Form</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, sans-serif;
-      background: #f8f9fa;
-      padding: 20px;
-      margin: 0;
-    }
-    h2 { text-align: center; color: #333; }
-    form {
-      max-width: 400px;
-      margin: auto;
-      background: #fff;
-      padding: 1.5rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    label { display: block; margin-top: 15px; font-weight: 600; font-size: 0.9rem; color: #333; }
-    input, select { width: 100%; padding: 0.45rem 0.5rem; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px; font-size: 1rem; box-sizing: border-box; transition: border-color 0.2s; }
-    input:focus, select:focus { border-color: #0078d4; outline: none; }
-    .quantity-unit { display: flex; align-items: center; gap: 0.5rem; }
-    .quantity-unit input { flex: 1; }
-    .unit-label { white-space: nowrap; font-size: 0.9rem; color: #555; min-width: 40px; }
-    form button[type="submit"] { width: 100%; background: orange; color: white; border: none; padding: 0.7rem; border-radius: 5px; font-size: 1.1rem; margin-top: 15px; cursor: pointer; transition: background 0.3s; }
-    form button[type="submit"]:hover { background: #e69500; }
-    .section-separator { max-width: 400px; margin: 30px auto; border-top: 2px solid #ddd; }
-    #erasePayLaterContainer { max-width: 400px; margin: 20px auto; position: relative; }
-    #erasePayLaterBtn { width: 100%; background: #dc3545; color: white; border: none; padding: 0.7rem; border-radius: 5px; font-size: 1.1rem; cursor: pointer; transition: background 0.3s; }
-    #erasePayLaterBtn:hover { background: #b02a37; }
-    #eraseModal { display:none; position:fixed; top:20%; left:50%; transform: translateX(-50%); background:#fff; padding:20px; border:1px solid #ccc; z-index:1000; max-width:400px; width:90%; box-shadow:0 4px 15px rgba(0,0,0,0.2); border-radius:8px; }
-    #eraseModal h3 { margin-top:0; }
-    #payLaterItems { margin-top:10px; max-height:200px; overflow-y:auto; border:1px solid #ddd; padding:5px; border-radius:5px; }
-    #submitErase, #closeErase { margin-top:10px; padding:0.5rem 0.7rem; border:none; border-radius:5px; cursor:pointer; font-size:1rem; }
-    #submitErase { background: orange; color:#fff; margin-right:5px; }
-    #submitErase:hover { background:#e69500; }
-    #closeErase { background:#ccc; }
-    #closeErase:hover { background:#999; }
-  </style>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0078d4" />
+<style>
+  body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f8f9fa; padding: 20px; margin: 0; }
+  h2 { text-align: center; color: #333; }
+  form { max-width: 400px; margin: auto; background: #fff; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+  label { display: block; margin-top: 15px; font-weight: 600; font-size: 0.9rem; color: #333; }
+  input, select, textarea { width: 100%; padding: 0.45rem 0.5rem; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px; font-size: 1rem; box-sizing: border-box; transition: border-color 0.2s; }
+  input:focus, select:focus, textarea:focus { border-color: #0078d4; outline: none; }
+  .quantity-unit { display: flex; align-items: center; gap: 0.5rem; }
+  .quantity-unit input { flex: 1; }
+  .unit-label { white-space: nowrap; font-size: 0.9rem; color: #555; min-width: 40px; }
+  form button[type="submit"] { width: 100%; background: orange; color: white; border: none; padding: 0.7rem; border-radius: 5px; font-size: 1.1rem; margin-top: 15px; margin-bottom: 15px; cursor: pointer; transition: background 0.3s; position: relative; z-index: 10; }
+  form button[type="submit"]:hover { background: #e69500; }
+  .section-separator { max-width: 400px; margin: 30px auto; border-top: 2px solid #ddd; }
+  #erasePayLaterContainer { max-width: 400px; margin: 20px auto; position: relative; z-index: 1; }
+  #erasePayLaterBtn { width: 100%; background: #dc3545; color: white; border: none; padding: 0.7rem; border-radius: 5px; font-size: 1.1rem; cursor: pointer; transition: background 0.3s; }
+  #erasePayLaterBtn:hover { background: #b02a37; }
+  @media (max-width: 480px) { form { padding: 1rem; } }
+  #eraseModal { display:none; position:fixed; top:20%; left:50%; transform: translateX(-50%); background:#fff; padding:20px; border:1px solid #ccc; z-index:1000; max-height:70%; overflow-y:auto; width:90%; max-width:400px; border-radius:8px; box-shadow:0 4px 20px rgba(0,0,0,0.2); }
+  #payLaterItems label { display:block; margin-bottom:4px; }
+  #payLaterItems input[type="number"] { margin-top:2px; }
+</style>
 </head>
 <body>
 
@@ -49,23 +35,15 @@
   <form id="consumptionForm">
     <label for="date">Date</label>
     <input type="date" id="date" name="date" required />
-
     <label for="staff">Staff</label>
-    <select id="staff" name="staff" required>
-      <option value="">--Select Staff--</option>
-    </select>
-
+    <select id="staff" name="staff" required><option value="">--Select Staff--</option></select>
     <label for="item">Item</label>
-    <select id="item" name="item" required>
-      <option value="">--Select Item--</option>
-    </select>
-
+    <select id="item" name="item" required><option value="">--Select Item--</option></select>
     <label for="quantity">Quantity</label>
     <div class="quantity-unit">
       <input type="number" id="quantity" name="quantity" min="1" required />
       <span class="unit-label" id="unitLabel"></span>
     </div>
-
     <label for="reason">Reason</label>
     <select id="reason" name="reason" required>
       <option value="">--Select Reason--</option>
@@ -74,10 +52,9 @@
       <option value="Managers Cup">Managers Cup</option>
       <option value="Personal Use">Personal Use</option>
       <option value="For Maintenance Worker">For Maintenance Worker</option>
-      <option value="Badgering-Give and report to manager">Badgering - Give & report to manager</option>
+      <option value="Badgering-Give and report to manager">Badgering - Give and report to manager</option>
       <option value="Other">Other</option>
     </select>
-
     <button type="submit">Submit</button>
   </form>
 
@@ -91,111 +68,112 @@
     <h3>Erase Pay Later Items</h3>
     <label>Staff:</label>
     <select id="eraseStaffSelect"></select>
-    <div id="payLaterItems"></div>
+    <div id="payLaterItems" style="margin-top:10px; max-height:200px; overflow-y:auto;"></div>
     <button id="submitErase">Submit</button>
     <button id="closeErase">Cancel</button>
   </div>
 
 <script>
-  const form = document.getElementById('consumptionForm');
-  const baseApiUrl = 'https://script.google.com/macros/s/AKfycbx8N8XbkKthFtjBpH70LATLH9kEVVbSJp2MB4QecZ26TsCZLuHfaU9J_IsRcJiWFHcacQ/exec';
+const form = document.getElementById('consumptionForm');
+const baseApiUrl = 'https://script.google.com/macros/s/AKfycbx8N8XbkKthFtjBpH70LATLH9kEVVbSJp2MB4QecZ26TsCZLuHfaU9J_IsRcJiWFHcacQ/exec';
 
-  // Load staff
-  fetch(baseApiUrl + '?type=staff').then(r => r.json()).then(data => {
-    const staffSelect = document.getElementById('staff');
-    data.forEach(name => {
-      const opt = document.createElement('option');
-      opt.value = name; opt.textContent = name;
-      staffSelect.appendChild(opt);
-    });
+// Load staff
+fetch(baseApiUrl + '?type=staff').then(r => r.json()).then(data => {
+  const staffSelect = document.getElementById('staff');
+  data.forEach(name => { const opt = document.createElement('option'); opt.value=name; opt.textContent=name; staffSelect.appendChild(opt); });
+});
+
+// Load items + units
+let itemsData = [], unitLabel = document.getElementById('unitLabel');
+fetch(baseApiUrl + '?type=items').then(r=>r.json()).then(data=>{
+  itemsData = data;
+  const itemSelect=document.getElementById('item');
+  data.forEach(row=>{const opt=document.createElement('option'); opt.value=row[0]; opt.textContent=row[0]; itemSelect.appendChild(opt);});
+  itemSelect.addEventListener("change",()=>{let match=itemsData.find(r=>r[0]===itemSelect.value); unitLabel.textContent=match?match[1]:"";});
+});
+
+// Form submission
+form.addEventListener('submit', async e=>{
+  e.preventDefault();
+  const submitBtn=form.querySelector('button[type="submit"]');
+  submitBtn.disabled=true; submitBtn.textContent="Submitting...";
+  const formData={date: form.date.value, staff: form.staff.value, item: form.item.value, quantity: form.quantity.value, reason: form.reason.value};
+  if(navigator.onLine){
+    await fetch(baseApiUrl,{method:'POST',body:new URLSearchParams(formData)});
+    alert("Data submitted successfully!"); form.reset();
+  }else{
+    let offlineData=JSON.parse(localStorage.getItem('offlineSubmissions')||'[]');
+    offlineData.push(formData); localStorage.setItem('offlineSubmissions',JSON.stringify(offlineData));
+    alert("No internet. Data saved locally and will be sent when online."); form.reset();
+  }
+  submitBtn.disabled=false; submitBtn.textContent="Submit";
+});
+
+// Erase Pay Later button
+document.getElementById("erasePayLaterBtn").addEventListener("click", async function(){
+  const submitBtn=document.getElementById("submitErase");
+  submitBtn.disabled=true;
+  let staffList=await fetch(baseApiUrl+"?type=staff").then(r=>r.json());
+  const staffSelect=document.getElementById("eraseStaffSelect");
+  staffSelect.innerHTML="<option value=''>-- Select Staff --</option>"+staffList.map(s=>`<option value="${s}">${s}</option>`).join("");
+  document.getElementById("payLaterItems").innerHTML="";
+  document.getElementById("eraseModal").style.display="block";
+});
+
+// Render payLater items with checkbox + quantity input
+document.getElementById("eraseStaffSelect").addEventListener("change", async function(){
+  let staffName=this.value;
+  const submitBtn=document.getElementById("submitErase");
+  submitBtn.disabled=true;
+  if(!staffName){document.getElementById("payLaterItems").innerHTML=""; return;}
+  let payLater=await fetch(baseApiUrl+"?type=paylater&staff="+encodeURIComponent(staffName)).then(r=>r.json());
+  let html=payLater.map(p=>`<div style="margin-bottom:6px;">
+    <label>
+      <input type="checkbox" value="${p.item}" data-max="${p.quantity}"> ${p.item} (${p.quantity} ${p.unit})
+    </label>
+    <input type="number" min="1" max="${p.quantity}" placeholder="Qty" style="width:60px; margin-left:8px;" disabled>
+  </div>`).join("");
+  document.getElementById("payLaterItems").innerHTML=html;
+  submitBtn.disabled=false;
+
+  // Enable qty input when checkbox is checked
+  document.querySelectorAll("#payLaterItems div").forEach(div=>{
+    const chk=div.querySelector("input[type=checkbox]");
+    const qty=div.querySelector("input[type=number]");
+    chk.addEventListener("change",()=>{qty.disabled=!chk.checked; if(!chk.checked) qty.value="";});
   });
+});
 
-  // Load items + units
-  let itemsData = [];
-  let unitLabel = document.getElementById('unitLabel');
-  fetch(baseApiUrl + '?type=items').then(r => r.json()).then(data => {
-    itemsData = data;
-    const itemSelect = document.getElementById('item');
-    data.forEach(row => {
-      const opt = document.createElement('option');
-      opt.value = row[0]; opt.textContent = row[0];
-      itemSelect.appendChild(opt);
-    });
-    itemSelect.addEventListener("change", () => {
-      let match = itemsData.find(row => row[0] === itemSelect.value);
-      unitLabel.textContent = match ? match[1] : "";
-    });
-  });
-
-  // Form submit
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const submitBtn = form.querySelector('button[type="submit"]');
-    submitBtn.disabled = true; submitBtn.textContent = "Submitting...";
-    const formData = {
-      date: form.date.value,
-      staff: form.staff.value,
-      item: form.item.value,
-      quantity: form.quantity.value,
-      reason: form.reason.value
-    };
-    if (navigator.onLine) {
-      await fetch(baseApiUrl, { method:'POST', body:new URLSearchParams(formData) });
-      alert("Data submitted successfully!");
-    } else {
-      let offlineData = JSON.parse(localStorage.getItem('offlineSubmissions')||'[]');
-      offlineData.push(formData);
-      localStorage.setItem('offlineSubmissions', JSON.stringify(offlineData));
-      alert("No internet. Data saved locally and will be sent when online.");
+// Submit erase
+document.getElementById("submitErase").addEventListener("click", async function(){
+  const staff=document.getElementById("eraseStaffSelect").value;
+  if(!staff){alert("Select staff."); return;}
+  const itemsDivs=document.querySelectorAll("#payLaterItems div");
+  let eraseData=[];
+  itemsDivs.forEach(div=>{
+    const chk=div.querySelector("input[type=checkbox]");
+    const qtyInput=div.querySelector("input[type=number]");
+    if(chk.checked && qtyInput.value>0){
+      eraseData.push({item:chk.value, quantity: qtyInput.value});
     }
-    form.reset();
-    submitBtn.disabled = false; submitBtn.textContent = "Submit";
   });
+  if(eraseData.length===0){alert("Select at least 1 item with quantity."); return;}
+  try{
+    if(navigator.onLine){
+      await fetch(baseApiUrl,{method:'POST',body:new URLSearchParams({type:"erase",staff,items:JSON.stringify(eraseData)})});
+      alert("Pay Later items erased successfully!");
+    }else{
+      let offlineErase=JSON.parse(localStorage.getItem("offlineErase")||"[]");
+      offlineErase.push({staff, items: eraseData});
+      localStorage.setItem("offlineErase",JSON.stringify(offlineErase));
+      alert("No internet. Erase request saved locally.");
+    }
+    document.getElementById("eraseModal").style.display="none";
+  }catch(err){console.error(err); alert("Error submitting erase.");}
+});
 
-  // Erase Pay Later modal
-  const eraseBtn = document.getElementById("erasePayLaterBtn");
-  const eraseModal = document.getElementById("eraseModal");
-  const eraseStaffSelect = document.getElementById("eraseStaffSelect");
-  const payLaterItems = document.getElementById("payLaterItems");
-  const submitEraseBtn = document.getElementById("submitErase");
-  const closeEraseBtn = document.getElementById("closeErase");
-
-  eraseBtn.addEventListener("click", async () => {
-    eraseModal.style.display = "block";
-    let staffList = await fetch(baseApiUrl + "?type=staff").then(r => r.json());
-    eraseStaffSelect.innerHTML = `<option value="">--Select Staff--</option>`;
-    staffList.forEach(name => {
-      const opt = document.createElement("option");
-      opt.value = name; opt.textContent = name;
-      eraseStaffSelect.appendChild(opt);
-    });
-    payLaterItems.innerHTML = "";
-  });
-
-  eraseStaffSelect.addEventListener("change", async () => {
-    const staff = eraseStaffSelect.value;
-    payLaterItems.innerHTML = "";
-    if(!staff) return;
-    let items = await fetch(baseApiUrl + `?type=paylater&staff=${encodeURIComponent(staff)}`).then(r => r.json());
-    items.forEach(item => {
-      const div = document.createElement("div");
-      div.innerHTML = `<label><input type="checkbox" value="${item.id}"> ${item.date} - ${item.item} (${item.quantity})</label>`;
-      payLaterItems.appendChild(div);
-    });
-  });
-
-  submitEraseBtn.addEventListener("click", async () => {
-    const checked = Array.from(payLaterItems.querySelectorAll("input[type=checkbox]:checked")).map(cb => cb.value);
-    if(checked.length === 0) { alert("Please select at least one item to erase."); return; }
-    submitEraseBtn.disabled = true; submitEraseBtn.textContent = "Erasing...";
-    await fetch(baseApiUrl, { method:"POST", body:new URLSearchParams({ type:"erase", ids: checked.join(",") }) });
-    alert("Selected Pay Later items erased successfully!");
-    submitEraseBtn.disabled = false; submitEraseBtn.textContent = "Submit";
-    eraseModal.style.display = "none";
-  });
-
-  closeEraseBtn.addEventListener("click", () => eraseModal.style.display = "none");
+// Close erase modal
+document.getElementById("closeErase").addEventListener("click",()=>{document.getElementById("eraseModal").style.display="none";});
 </script>
-
 </body>
 </html>
