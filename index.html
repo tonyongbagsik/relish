@@ -220,6 +220,13 @@
   // Handle submit
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+
+// --- BUTTON DISABLE/ENABLE ADDED ---
+    const submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Submitting..."; // optional visual feedback
+    // --- END CHANGE ---
+
     const formData = {
       date: form.date.value,
       staff: form.staff.value,
@@ -242,6 +249,12 @@
       alert("No internet. Data saved locally and will be sent when online.");
       form.reset();
     }
+
+ // --- RE-ENABLE BUTTON AFTER SUBMISSION ---
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Submit";
+    // --- END CHANGE ---
+
   });
 
   // Erase Pay Later
