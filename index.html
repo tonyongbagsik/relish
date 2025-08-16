@@ -301,11 +301,23 @@
   });
 
   document.getElementById("submitErase").addEventListener("click", async function() {
+ // --- CHANGE START: disable button agad ---
+  let submitBtn = this;  // reference sa button
+  submitBtn.disabled = true;
+  const originalText = submitBtn.textContent;
+  submitBtn.textContent = "Erasing...";
+  // --- CHANGE END ---
+
     let staffName = document.getElementById("eraseStaffSelect").value;
     let items = [...document.querySelectorAll("#payLaterItems input:checked")].map(cb => cb.value);
 
     if (items.length === 0) {
       alert("Select at least one item.");
+// --- CHANGE START: re-enable button kung walang item ---
+    submitBtn.disabled = false;
+    submitBtn.textContent = originalText;
+    // --- CHANGE END ---
+
       return;
     }
 
@@ -321,6 +333,12 @@
 
   document.getElementById("closeErase").addEventListener("click", function() {
     document.getElementById("eraseModal").style.display = "none";
+
+// --- RE-ENABLE BUTTON AFTER SUBMISSION ---
+  submitBtn.disabled = false;
+  submitBtn.textContent = originalText;
+  // --- END CHANGE ---
+
   });
 
   window.addEventListener('online', async () => {
