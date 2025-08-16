@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <title>Staff Consumption Form</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0078d4" />
 <style>
   body {
     font-family: 'Segoe UI', Tahoma, sans-serif;
@@ -58,7 +60,8 @@
     color: #555;
     min-width: 40px;
   }
-  button {
+  /* Submit Button */
+  form button[type="submit"] {
     width: 100%;
     background: orange;
     color: white;
@@ -66,20 +69,25 @@
     padding: 0.7rem;
     border-radius: 5px;
     font-size: 1.1rem;
-    margin-top: 20px;
+    margin-top: 15px;
     cursor: pointer;
     transition: background 0.3s;
   }
-  button:hover {
+  form button[type="submit"]:hover {
     background: #e69500;
+  }
+  @media (max-width: 480px) {
+    form {
+      padding: 1rem;
+    }
   }
 </style>
 </head>
 <body>
 
   <h2>Staff Daily Consumption</h2>
-
   <form id="consumptionForm">
+
     <label for="date">Date</label>
     <input type="date" id="date" name="date" required />
 
@@ -112,6 +120,7 @@
     </select>
 
     <button type="submit">Submit</button>
+
   </form>
 
 <script>
@@ -154,7 +163,7 @@
       });
     });
 
-  // Handle submit
+  // Handle submit with offline storage
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const formData = {
@@ -180,6 +189,71 @@
       form.reset();
     }
   });
+
+  // Send saved data when online
+  window.addEventListener('online', async () => {
+    let offlineData = JSON.parse(localStorage.getItem('offlineSubmissions') || '[]');
+    if (offlineData.length > 0) {
+      for (const data of offlineData) {
+        await fetch(baseApiUrl, {
+          method: 'POST',
+          body: new URLSearchParams(data)
+        });
+      }
+      localStorage.removeItem('offlineSubmissions');
+      alert("Offline data synced to server.");
+    }
+  });
+
+  // Install prompt handler
+  let deferredPrompt;
+  const installBanner = document.createElement('div');
+  installBanner.style.cssText = `
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #0078d4;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    cursor: pointer;
+    z-index: 9999;
+    display: none;
+  `;
+
+  const isIOS = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+  const isInStandaloneMode = ('standalone' in window.navigator) && window.navigator.standalone;
+
+  if (isIOS && !isInStandaloneMode) {
+    installBanner.textContent = '📲 I-tap ang Share, tapos piliin "Add to Home Screen"';
+    document.body.appendChild(installBanner);
+    installBanner.style.display = 'block';
+  }
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    installBanner.textContent = '📲 Install App';
+    document.body.appendChild(installBanner);
+    installBanner.style.display = 'block';
+    installBanner.addEventListener('click', () => {
+      installBanner.style.display = 'none';
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(() => deferredPrompt = null);
+    });
+  });
+
+  // Register Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/service-worker.js')
+      .then(reg => console.log('Service Worker registered:', reg.scope))
+      .catch(err => console.log('Service Worker registration failed:', err));
+    });
+  }
 </script>
 
 </body>
