@@ -1,4 +1,4 @@
-const CACHE_NAME = 'staff-consumption-cache-v2.1';
+const CACHE_NAME = 'staff-consumption-cache-v3';
 const urlsToCache = [
   '/', // assuming index.html is at root
   '/index.html',
@@ -53,3 +53,4 @@ self.addEventListener('fetch', event => {
   );
 
 });
+
