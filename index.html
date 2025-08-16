@@ -4,8 +4,6 @@
   <meta charset="UTF-8" />
   <title>Staff Consumption Form</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#0078d4" />
 <style>
   body {
     font-family: 'Segoe UI', Tahoma, sans-serif;
@@ -60,9 +58,7 @@
     color: #555;
     min-width: 40px;
   }
-
-  /* Submit Button */
-  form button[type="submit"] {
+  button {
     width: 100%;
     background: orange;
     color: white;
@@ -70,50 +66,12 @@
     padding: 0.7rem;
     border-radius: 5px;
     font-size: 1.1rem;
-    margin-top: 15px;
-    margin-bottom: 15px;
+    margin-top: 20px;
     cursor: pointer;
     transition: background 0.3s;
-    position: relative;
-    z-index: 10;
   }
-  form button[type="submit"]:hover {
+  button:hover {
     background: #e69500;
-  }
-
-  /* Separator between sections */
-  .section-separator {
-    max-width: 400px;
-    margin: 30px auto;
-    border-top: 2px solid #ddd;
-  }
-
-  /* Erase Pay Later container */
-  #erasePayLaterContainer {
-    max-width: 400px;
-    margin: 20px auto;
-    position: relative;
-    z-index: 1;
-  }
-  #erasePayLaterBtn {
-    width: 100%;
-    background: #dc3545;
-    color: white;
-    border: none;
-    padding: 0.7rem;
-    border-radius: 5px;
-    font-size: 1.1rem;
-    cursor: pointer;
-    transition: background 0.3s;
-  }
-  #erasePayLaterBtn:hover {
-    background: #b02a37;
-  }
-
-  @media (max-width: 480px) {
-    form {
-      padding: 1rem;
-    }
   }
 </style>
 </head>
@@ -121,7 +79,6 @@
 
   <h2>Staff Daily Consumption</h2>
 
-  <!-- Form Section -->
   <form id="consumptionForm">
     <label for="date">Date</label>
     <input type="date" id="date" name="date" required />
@@ -156,26 +113,6 @@
 
     <button type="submit">Submit</button>
   </form>
-
-  <!-- Separator -->
-  <div class="section-separator"></div>
-
-  <!-- Erase Pay Later Section -->
-  <div id="erasePayLaterContainer">
-    <button type="button" id="erasePayLaterBtn">Erase Pay Later</button>
-  </div>
-
-  <!-- Erase Modal -->
-  <div id="eraseModal" style="display:none; position:fixed; top:20%; left:30%; background:#fff; padding:20px; border:1px solid #ccc; z-index:1000;">
-    <h3>Erase Pay Later Items</h3>
-    <label>Staff:</label>
-    <select id="eraseStaffSelect"></select>
-    
-    <div id="payLaterItems" style="margin-top:10px; max-height:200px; overflow-y:auto;"></div>
-
-    <button id="submitErase">Submit</button>
-    <button id="closeErase">Cancel</button>
-  </div>
 
 <script>
   const form = document.getElementById('consumptionForm');
@@ -241,86 +178,6 @@
       localStorage.setItem('offlineSubmissions', JSON.stringify(offlineData));
       alert("No internet. Data saved locally and will be sent when online.");
       form.reset();
-    }
-  });
-
-  // Erase Pay Later
-  document.getElementById("erasePayLaterBtn").addEventListener("click", async function() {
-    let submitBtn = document.getElementById("submitErase");
-    submitBtn.disabled = true;
-
-    let staffList = await fetch(baseApiUrl + "?type=staff").then(r => r.json());
-    let staffSelect = document.getElementById("eraseStaffSelect");
-    staffSelect.innerHTML = `<option value="">-- Select Staff --</option>` + 
-      staffList.map(s => `<option value="${s}">${s}</option>`).join("");
-
-    document.getElementById("payLaterItems").innerHTML = "";
-    document.getElementById("eraseModal").style.display = "block";
-  });
-
-  document.getElementById("eraseStaffSelect").addEventListener("change", async function() {
-    let staffName = this.value;
-    let submitBtn = document.getElementById("submitErase");
-    submitBtn.disabled = true;
-
-    if (!staffName) {
-      document.getElementById("payLaterItems").innerHTML = "";
-      return;
-    }
-
-    let payLater = await fetch(baseApiUrl + "?type=paylater&staff=" + encodeURIComponent(staffName))
-      .then(r => r.json());
-
-    let html = payLater.map(p => 
-      `<label>
-        <input type="checkbox" value="${p.item}"> ${p.item} (${p.quantity} ${p.unit})
-      </label><br>`
-    ).join("");
-
-    document.getElementById("payLaterItems").innerHTML = html || "<p>No Pay Later items.</p>";
-
-    document.querySelectorAll("#payLaterItems input[type='checkbox']").forEach(cb => {
-      cb.addEventListener("change", function() {
-        let itemsChecked = document.querySelectorAll("#payLaterItems input:checked").length;
-        submitBtn.disabled = !(staffName && itemsChecked > 0);
-      });
-    });
-  });
-
-  document.getElementById("submitErase").addEventListener("click", async function() {
-    let staffName = document.getElementById("eraseStaffSelect").value;
-    let items = [...document.querySelectorAll("#payLaterItems input:checked")].map(cb => cb.value);
-
-    if (items.length === 0) {
-      alert("Select at least one item.");
-      return;
-    }
-
-    let formData = new URLSearchParams();
-    formData.append("action", "erase");
-    formData.append("staff", staffName);
-    formData.append("items", JSON.stringify(items));
-
-    let res = await fetch(baseApiUrl, { method: "POST", body: formData });
-    alert(await res.text());
-    document.getElementById("eraseModal").style.display = "none";
-  });
-
-  document.getElementById("closeErase").addEventListener("click", function() {
-    document.getElementById("eraseModal").style.display = "none";
-  });
-
-  window.addEventListener('online', async () => {
-    let offlineData = JSON.parse(localStorage.getItem('offlineSubmissions') || '[]');
-    if (offlineData.length > 0) {
-      for (const data of offlineData) {
-        await fetch(baseApiUrl, {
-          method: 'POST',
-          body: new URLSearchParams(data)
-        });
-      }
-      localStorage.removeItem('offlineSubmissions');
-      alert("Offline data synced to server.");
     }
   });
 </script>
