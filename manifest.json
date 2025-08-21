@@ -1,7 +1,8 @@
 {
   "name": "Staff Consumption",
   "short_name": "Consumption",
-  "start_url": "./index.html",
+ "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#f8f9fa",
   "theme_color": "#0078d4",
@@ -18,4 +19,5 @@
       "type": "image/png"
     }
   ]
+
 }
