@@ -327,8 +327,17 @@ submitEraseBtn.addEventListener('click', async function () {
 closeEraseBtn.addEventListener('click', () => {
   eraseModal.style.display = "none";
 });
+  // ---------- REGISTER SERVICE WORKER ----------
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('serviceworker.js')
+      .then(reg => console.log("✅ Service Worker registered:", reg.scope))
+      .catch(err => console.error("❌ Service Worker failed:", err));
+  });
+}
 </script>
 </body>
 </html>
+
 
 
