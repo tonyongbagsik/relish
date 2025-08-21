@@ -76,7 +76,9 @@
   <div id="erasePayLaterContainer">
     <button type="button" id="erasePayLaterBtn">Erase Pay Later</button>
   </div>
-
+<button id="installBtn" style="position:fixed; right:16px; bottom:16px; padding:10px 14px; border:none; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,.2); background:#0078d4; color:#fff; display:none; z-index:9999;">
+  Install App
+</button>
   <!-- Erase Modal -->
   <div id="eraseModal">
     <h3>Erase Pay Later Items</h3>
@@ -327,6 +329,44 @@ submitEraseBtn.addEventListener('click', async function () {
 closeEraseBtn.addEventListener('click', () => {
   eraseModal.style.display = "none";
 });
+
+// --- PWA install UI ---
+  let deferredPrompt = null;
+  const installBtn = document.getElementById('installBtn');
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevent the mini-infobar on mobile
+    e.preventDefault();
+    deferredPrompt = e;
+    // Show our custom install button
+    installBtn.style.display = 'inline-block';
+  });
+
+  installBtn.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    installBtn.disabled = true;
+    deferredPrompt.prompt();
+    const choice = await deferredPrompt.userChoice;
+    // You can log choice.outcome === 'accepted' or 'dismissed'
+    deferredPrompt = null;
+    installBtn.style.display = 'none';
+    installBtn.disabled = false;
+  });
+
+  window.addEventListener('appinstalled', () => {
+    // Installed successfully
+    deferredPrompt = null;
+    installBtn.style.display = 'none';
+  });
+
+  // iOS hint (Safari walang beforeinstallprompt). Optional:
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isInStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  if (isIOS && !isInStandalone) {
+    // Pwede kang magpakita ng maliit na tip/badge kung gusto mo.
+    // Example: alert('iOS: Use Share > Add to Home Screen para i-install.');
+  }
+
   // ---------- REGISTER SERVICE WORKER ----------
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -338,6 +378,7 @@ if ('serviceWorker' in navigator) {
 </script>
 </body>
 </html>
+
 
 
 
