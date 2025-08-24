@@ -1,67 +1,54 @@
-const CACHE_NAME = 'staff-consumption-cache-v14';
-const urlsToCache = [
-  '/', // assuming index.html is at root
+const CACHE_NAME = 'staff-consumption-v15';
+const APP_SHELL = [
+  '/',
   '/index.html',
   '/manifest.json',
-  // mga CSS, JS files kung naka-separate
+  '/icons/icon-192.png',
+  '/icons/icon-512.png'
 ];
 
-// On install, cache files
-self.addEventListener('install', event => {
+self.addEventListener('install', (event)=>{
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(urlsToCache))
-      .then(() => self.skipWaiting())
+      .then(c=>c.addAll(APP_SHELL))
+      .then(()=>self.skipWaiting())
   );
 });
 
-// On activate, clean old caches if needed
-self.addEventListener('activate', event => {
+self.addEventListener('activate', (event)=>{
   event.waitUntil(
-    caches.keys().then(keys => 
-      Promise.all(
-        keys.filter(key => key !== CACHE_NAME)
-            .map(key => caches.delete(key))
-      )
-    ).then(() => self.clients.claim())
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k)))
+    ).then(()=>self.clients.claim())
   );
 });
 
-// Fetch handler: respond from cache, fallback to network, cache new requests
-self.addEventListener('fetch', event => {
-  if (event.request.method !== 'GET') return; // only cache GET requests
+// HTML: network-first; others: cache-first (then stash)
+self.addEventListener('fetch', (event)=>{
+  const req = event.request;
+  if (req.method!=='GET') return;
+
+  const isHTML = req.headers.get('accept')?.includes('text/html');
+
+  if (isHTML){
+    event.respondWith(
+      fetch(req).then(res=>{
+        const copy = res.clone();
+        caches.open(CACHE_NAME).then(c=>c.put(req, copy));
+        return res;
+      }).catch(()=>caches.match(req).then(r=>r || caches.match('/index.html')))
+    );
+    return;
+  }
 
   event.respondWith(
-    caches.match(event.request).then(cachedResponse => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(event.request).then(networkResponse => {
-        // cache fetched files dynamically (optional)
-        return caches.open(CACHE_NAME).then(cache => {
-          // Clone response before caching
-          cache.put(event.request, networkResponse.clone());
-          return networkResponse;
-        });
-      }).catch(() => {
-        // fallback if offline and resource not cached
-        if (event.request.destination === 'document') {
-          return caches.match('/index.html');
-        }
-      });
+    caches.match(req).then(cached=>{
+      if (cached) return cached;
+      return fetch(req).then(res=>{
+        const copy = res.clone();
+        caches.open(CACHE_NAME).then(c=>c.put(req, copy));
+        return res;
+      }).catch(()=>caches.match('/index.html'));
     })
   );
-
 });
-
-
-
-
-
-
-
-
-
-
-
-
