@@ -3,382 +3,326 @@
 <head>
   <meta charset="UTF-8" />
   <link rel="manifest" href="manifest.json">
-  <title>Staff Consumption Form</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0078d4" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0ea5e9" />
+  <title>Staff Consumption</title>
   <style>
-    body { font-family: 'Segoe UI', Tahoma, sans-serif; background:#f8f9fa; padding:20px; margin:0; }
-    h2 { text-align:center; color:#333; }
-    form { max-width:400px; margin:auto; background:#fff; padding:1.5rem; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,0.1); }
-    label { display:block; margin-top:15px; font-weight:600; font-size:0.9rem; color:#333; }
-    input, select, textarea { width:100%; padding:0.45rem 0.5rem; margin-top:5px; border:1px solid #ccc; border-radius:5px; font-size:1rem; box-sizing:border-box; transition:border-color 0.2s; }
-    input:focus, select:focus, textarea:focus { border-color:#0078d4; outline:none; }
-    .quantity-unit { display:flex; align-items:center; gap:0.5rem; }
-    .quantity-unit input { flex:1; }
-    .unit-label { white-space:nowrap; font-size:0.9rem; color:#555; min-width:40px; }
-    form button[type="submit"] { width:100%; background:orange; color:white; border:none; padding:0.7rem; border-radius:5px; font-size:1.1rem; margin-top:15px; margin-bottom:15px; cursor:pointer; transition:background 0.3s; position:relative; z-index:10; }
-    form button[type="submit"]:hover { background:#e69500; }
-    .section-separator { max-width:400px; margin:30px auto; border-top:2px solid #ddd; }
-    #erasePayLaterContainer { max-width:400px; margin:20px auto; position:relative; z-index:1; }
-    #erasePayLaterBtn { width:100%; background:#dc3545; color:#fff; border:none; padding:0.7rem; border-radius:5px; font-size:1.1rem; cursor:pointer; transition:background 0.3s; }
-    #erasePayLaterBtn:hover { background:#b02a37; }
-    #eraseModal { display:none; position:fixed; top:20%; left:50%; transform: translateX(-50%); background:#fff; padding:20px; border:1px solid #ccc; z-index:1000; max-height:70%; overflow-y:auto; width:90%; max-width:400px; border-radius:8px; box-shadow:0 4px 20px rgba(0,0,0,0.2); }
-    #payLaterItems .row { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
-    #payLaterItems .row label { flex:1; margin:0; font-weight:500; }
-    #payLaterItems .row input[type="number"] { width:70px; }
-    @media (max-width: 480px) { form { padding:1rem; } }
+    :root { --bg:#0b1220; --card:#0f172a; --accent:#0ea5e9; --text:#e2e8f0; --muted:#94a3b8; --danger:#ef4444; --ok:#22c55e; }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,#0b1220,#111827);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial;color:var(--text);min-height:100svh;padding:24px}
+    h2{margin:0 0 16px;font-weight:700;letter-spacing:.2px}
+    .card{max-width:460px;margin:auto;background:var(--card);border:1px solid #1f2937;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,.35);padding:18px}
+    label{display:block;margin:14px 0 6px;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+    input,select{width:100%;background:#0b1324;border:1px solid #263143;color:var(--text);border-radius:10px;padding:10px 12px;font-size:15px;outline:none}
+    input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(14,165,233,.15)}
+    .row{display:grid;grid-template-columns:1fr;gap:12px}
+    .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .unit{align-self:center;font-size:13px;color:var(--muted)}
+    button.primary{width:100%;background:var(--accent);color:#00131a;border:none;border-radius:12px;padding:12px 14px;font-weight:700;cursor:pointer;margin-top:14px}
+    button.primary:hover{filter:brightness(1.05)}
+    .sep{height:1px;background:#1f2937;margin:24px 0}
+    .muted{color:var(--muted);font-size:13px}
+    .toolbar{display:flex;gap:10px}
+    .ghost{background:transparent;border:1px solid #334155;color:var(--text);border-radius:10px;padding:10px 12px;cursor:pointer}
+    .ghost:hover{border-color:#475569}
+    /* Modal */
+    .modal{display:none;position:fixed;inset:0;background:rgba(2,6,23,.66);place-items:center;z-index:50;padding:16px}
+    .sheet{width:min(520px,96vw);background:#0d1528;border:1px solid #1f2937;border-radius:16px;box-shadow:0 10px 50px rgba(0,0,0,.5);padding:16px}
+    .itemrow{display:grid;grid-template-columns:20px 1fr 90px;gap:10px;align-items:center;margin:6px 0}
+    .danger{background:var(--danger);color:white;border:none;border-radius:10px;padding:10px 12px;cursor:pointer}
+    .danger[disabled]{opacity:.6;cursor:not-allowed}
+    /* Install FAB */
+    #installFab{position:fixed;right:16px;bottom:16px;background:#22d3ee;color:#002a30;border:none;padding:12px 14px;border-radius:999px;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.35);display:none;z-index:60;cursor:pointer}
+    #installFab:hover{filter:brightness(1.05)}
   </style>
 </head>
 <body>
 
-  <h2>Staff Daily Consumption</h2>
+  <div class="card">
+    <h2>Staff Daily Consumption</h2>
 
-  <!-- Form Section -->
-  <form id="consumptionForm">
-    <label for="date">Date</label>
-    <input type="date" id="date" name="date" required />
+    <form id="consumptionForm" autocomplete="off">
+      <label>Date</label>
+      <input type="date" id="date" required />
 
-    <label for="staff">Staff</label>
-    <select id="staff" name="staff" required>
-      <option value="">--Select Staff--</option>
-    </select>
+      <label>Staff</label>
+      <select id="staff" required>
+        <option value="">— Select Staff —</option>
+      </select>
 
-    <label for="item">Item</label>
-    <select id="item" name="item" required>
-      <option value="">--Select Item--</option>
-    </select>
+      <label>Item</label>
+      <select id="item" required>
+        <option value="">— Select Item —</option>
+      </select>
 
-    <label for="quantity">Quantity</label>
-    <div class="quantity-unit">
-      <input type="number" id="quantity" name="quantity" min="1" required />
-      <span class="unit-label" id="unitLabel"></span>
+      <div class="row2">
+        <div>
+          <label>Quantity</label>
+          <input type="number" id="quantity" min="1" required />
+        </div>
+        <div class="unit" id="unitLabel"></div>
+      </div>
+
+      <label>Reason</label>
+      <select id="reason" required>
+        <option value="">— Select Reason —</option>
+        <option value="Pay Later">Pay Later</option>
+        <option value="Complimentary">Complimentary</option>
+        <option value="Managers Cup">Managers Cup</option>
+        <option value="Personal Use">Personal Use</option>
+        <option value="For Maintenance Worker">For Maintenance Worker</option>
+        <option value="Badgering - Give and report to manager">Badgering - Give and report to manager</option>
+        <option value="Other">Other</option>
+      </select>
+
+      <button type="submit" class="primary" id="submitBtn">Submit</button>
+      <div class="muted">Works offline. Syncs when you’re back online.</div>
+    </form>
+
+    <div class="sep"></div>
+
+    <div class="toolbar">
+      <button class="ghost" id="eraseOpenBtn">Erase / Adjust Items</button>
+      <button class="ghost" id="refreshListsBtn" title="Reload staff & items">↻ Refresh Lists</button>
     </div>
-
-    <label for="reason">Reason</label>
-    <select id="reason" name="reason" required>
-      <option value="">--Select Reason--</option>
-      <option value="Complimentary">Complimentary</option>
-      <option value="Pay Later">Pay Later</option>
-      <option value="Managers Cup">Managers Cup</option>
-      <option value="Personal Use">Personal Use</option>
-      <option value="For Maintenance Worker">For Maintenance Worker</option>
-      <option value="Badgering-Give and report to manager">Badgering - Give and report to manager</option>
-      <option value="Other">Other</option>
-    </select>
-
-    <button type="submit">Submit</button>
-  </form>
-
-  <!-- Separator -->
-  <div class="section-separator"></div>
-
-  <!-- Erase Pay Later Section -->
-  <div id="erasePayLaterContainer">
-    <button type="button" id="erasePayLaterBtn">Erase Pay Later</button>
   </div>
-<button id="installBtn" style="position:fixed; right:16px; bottom:16px; padding:10px 14px; border:none; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,.2); background:#0078d4; color:#fff; display:none; z-index:9999;">
-  Install App
-</button>
-  <!-- Erase Modal -->
-  <div id="eraseModal">
-    <h3>Erase Pay Later Items</h3>
-    <label>Staff:</label>
-    <select id="eraseStaffSelect"></select>
-    <div id="payLaterItems" style="margin-top:10px; max-height:260px; overflow-y:auto;"></div>
-    <button id="submitErase">Submit</button>
-    <button id="closeErase">Cancel</button>
+
+  <!-- Erase / Adjust Modal -->
+  <div class="modal" id="eraseModal">
+    <div class="sheet">
+      <h3 style="margin:6px 0 10px">Erase / Adjust</h3>
+
+      <label>Staff</label>
+      <select id="eraseStaff"></select>
+
+      <div id="eraseItems" style="max-height:300px;overflow:auto;margin-top:8px"></div>
+
+      <div style="display:flex;gap:10px;margin-top:12px">
+        <button class="danger" id="eraseSubmit" disabled>Submit Erase</button>
+        <button class="ghost" id="eraseClose">Cancel</button>
+      </div>
+      <div class="muted" style="margin-top:6px">Only items with positive net usage are shown. You can erase up to the remaining amount.</div>
+    </div>
   </div>
+
+  <!-- Install FAB -->
+  <button id="installFab">Install App</button>
 
 <script>
-const baseApiUrl = 'https://script.google.com/macros/s/AKfycbxuZrK2k-iL7fAF-xQpWz2PQCf5QndggQZ26OqCoW--f6RHpVYegu-bN0e2Ksskzf68iw/exec'; // <<<<<<<<<<<<<<<<<<<<<<<< REPLACE THIS
+/* ==== CONFIG ==== */
+const baseApiUrl = 'https://script.google.com/macros/s/AKfycbxuZrK2k-iL7fAF-xQpWz2PQCf5QndggQZ26OqCoW--f6RHpVYegu-bN0e2Ksskzf68iw/exec'; // <-- paste GAS web app https://script.google.com/macros/s/xxx/exec
 
+/* ==== ELEMENTS ==== */
 const form = document.getElementById('consumptionForm');
 const unitLabel = document.getElementById('unitLabel');
+const staffSel = document.getElementById('staff');
+const itemSel  = document.getElementById('item');
+const qtyInput = document.getElementById('quantity');
+const reasonSel= document.getElementById('reason');
+const submitBtn= document.getElementById('submitBtn');
 
-// ---------- Load Staff (from Summary) ----------
-fetch(baseApiUrl + '?type=staff')
-  .then(r => r.json())
-  .then(data => {
-    const staffSelect = document.getElementById('staff');
-    data.forEach(name => {
-      const opt = document.createElement('option');
-      opt.value = name;
-      opt.textContent = name;
-      staffSelect.appendChild(opt);
-    });
-  });
+const eraseOpenBtn = document.getElementById('eraseOpenBtn');
+const eraseModal   = document.getElementById('eraseModal');
+const eraseStaff   = document.getElementById('eraseStaff');
+const eraseItemsDiv= document.getElementById('eraseItems');
+const eraseSubmit  = document.getElementById('eraseSubmit');
+const eraseClose   = document.getElementById('eraseClose');
 
-// ---------- Load Items + Units ----------
-let itemsData = [];
-fetch(baseApiUrl + '?type=items')
-  .then(r => r.json())
-  .then(data => {
-    itemsData = data; // [ [item, unit], ... ]
-    const itemSelect = document.getElementById('item');
-    data.forEach(row => {
-      const opt = document.createElement('option');
-      opt.value = row[0];
-      opt.textContent = row[0];
-      itemSelect.appendChild(opt);
-    });
-    itemSelect.addEventListener("change", () => {
-      const match = itemsData.find(row => row[0] === itemSelect.value);
-      unitLabel.textContent = match ? match[1] : "";
-    });
-  });
+const refreshListsBtn = document.getElementById('refreshListsBtn');
+const installFab = document.getElementById('installFab');
 
-// ---------- Form Submit (ADD) ----------
-form.addEventListener('submit', async (e) => {
+/* ==== STATE ==== */
+let itemsData = []; // [[item,unit], ...]
+let deferredPrompt = null;
+
+/* ==== LOADERS ==== */
+async function loadStaff(){
+  const data = await fetch(baseApiUrl + '?type=staff').then(r=>r.json()).catch(()=>[]);
+  const opts = ['<option value="">— Select Staff —</option>'].concat(data.map(n=>`<option>${n}</option>`)).join('');
+  staffSel.innerHTML = opts;
+  eraseStaff.innerHTML = '<option value="">— Select Staff —</option>' + data.map(n=>`<option>${n}</option>`).join('');
+}
+
+async function loadItems(){
+  itemsData = await fetch(baseApiUrl + '?type=items').then(r=>r.json()).catch(()=>[]);
+  const opts = ['<option value="">— Select Item —</option>'].concat(itemsData.map(r=>`<option>${r[0]}</option>`)).join('');
+  itemSel.innerHTML = opts;
+}
+
+function updateUnitLabel(){
+  const v = itemSel.value;
+  const match = itemsData.find(r=>r[0]===v);
+  unitLabel.textContent = match ? match[1] : '';
+}
+
+/* ==== INIT ==== */
+window.addEventListener('load', async () => {
+  await Promise.all([loadStaff(), loadItems()]);
+  updateUnitLabel();
+});
+
+/* Refresh on demand (if may binago ka sa sheet) */
+refreshListsBtn.addEventListener('click', async ()=>{
+  await Promise.all([loadStaff(), loadItems()]);
+  updateUnitLabel();
+});
+
+/* Also refresh staff list when opening the dropdown */
+staffSel.addEventListener('pointerdown', loadStaff);
+
+/* Unit change on item select */
+itemSel.addEventListener('change', updateUnitLabel);
+
+/* ==== SUBMIT (ADD) ==== */
+form.addEventListener('submit', async (e)=>{
   e.preventDefault();
+  submitBtn.disabled = true; submitBtn.textContent = 'Submitting...';
 
-  const submitBtn = form.querySelector('button[type="submit"]');
-  submitBtn.disabled = true;
-  submitBtn.textContent = "Submitting...";
-
-  const formData = new URLSearchParams({
+  const payload = new URLSearchParams({
     action: 'add',
-    date: form.date.value,
-    staff: form.staff.value,
-    item: form.item.value,
-    quantity: form.quantity.value,
-    reason: form.reason.value
+    date: document.getElementById('date').value,
+    staff: staffSel.value,
+    item:  itemSel.value,
+    quantity: qtyInput.value,
+    reason: reasonSel.value
   });
 
-  try {
-    if (navigator.onLine) {
-      await fetch(baseApiUrl, { method: 'POST', body: formData });
-      alert("Data submitted successfully!");
-      form.reset();
-      unitLabel.textContent = "";
-    } else {
-      // offline queue
-      let q = JSON.parse(localStorage.getItem('offlineAdd') || '[]');
-      q.push(Object.fromEntries(formData));
+  try{
+    if (navigator.onLine){
+      const r = await fetch(baseApiUrl, {method:'POST', body: payload});
+      if (!r.ok) throw new Error('HTTP '+r.status);
+      alert('Saved!');
+    }else{
+      const q = JSON.parse(localStorage.getItem('offlineAdd')||'[]');
+      q.push(Object.fromEntries(payload));
       localStorage.setItem('offlineAdd', JSON.stringify(q));
-      alert("No internet. Saved locally and will sync when online.");
-      form.reset();
-      unitLabel.textContent = "";
+      alert('Offline → queued. Will sync when online.');
     }
-  } catch (err) {
-    alert("Error submitting. Try again.");
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.textContent = "Submit";
+    form.reset(); unitLabel.textContent='';
+  }catch(err){
+    alert('Submit failed.');
+  }finally{
+    submitBtn.disabled=false; submitBtn.textContent='Submit';
   }
 });
 
-// ---------- ONLINE SYNC ----------
-window.addEventListener('online', async () => {
-  // sync adds
-  const adds = JSON.parse(localStorage.getItem('offlineAdd') || '[]');
-  for (const a of adds) {
-    const p = new URLSearchParams(a);
-    await fetch(baseApiUrl, { method: 'POST', body: p });
+/* ==== ONLINE SYNC ==== */
+window.addEventListener('online', async ()=>{
+  // adds
+  const adds = JSON.parse(localStorage.getItem('offlineAdd')||'[]');
+  for (const a of adds){
+    await fetch(baseApiUrl, {method:'POST', body: new URLSearchParams(a)});
   }
   if (adds.length) localStorage.removeItem('offlineAdd');
 
-  // sync erases
-  const erases = JSON.parse(localStorage.getItem('offlineErase') || '[]');
-  for (const er of erases) {
-    const p = new URLSearchParams({ action: 'erase', staff: er.staff, items: JSON.stringify(er.items) });
-    await fetch(baseApiUrl, { method: 'POST', body: p });
+  // erases
+  const ers = JSON.parse(localStorage.getItem('offlineErase')||'[]');
+  for (const er of ers){
+    await fetch(baseApiUrl, {method:'POST', body: new URLSearchParams({action:'erase', staff:er.staff, items: JSON.stringify(er.items)})});
   }
-  if (erases.length) localStorage.removeItem('offlineErase');
+  if (ers.length) localStorage.removeItem('offlineErase');
 });
 
-// ---------- Erase Pay Later Modal ----------
-const eraseBtn = document.getElementById('erasePayLaterBtn');
-const eraseModal = document.getElementById('eraseModal');
-const eraseStaffSelect = document.getElementById('eraseStaffSelect');
-const payLaterItemsDiv = document.getElementById('payLaterItems');
-const submitEraseBtn = document.getElementById('submitErase');
-const closeEraseBtn = document.getElementById('closeErase');
-
-eraseBtn.addEventListener('click', async () => {
-  submitEraseBtn.disabled = true;
-  // load staff
-  const staffList = await fetch(baseApiUrl + '?type=staff').then(r => r.json());
-  eraseStaffSelect.innerHTML = `<option value="">-- Select Staff --</option>` +
-    staffList.map(s => `<option value="${s}">${s}</option>`).join('');
-  payLaterItemsDiv.innerHTML = "";
-  eraseModal.style.display = "block";
+/* ==== ERASE / ADJUST ==== */
+eraseOpenBtn.addEventListener('click', async ()=>{
+  eraseSubmit.disabled = true;
+  await loadStaff();
+  eraseItemsDiv.innerHTML = '';
+  eraseModal.style.display='grid';
 });
 
-eraseStaffSelect.addEventListener('change', async function () {
-  const staffName = this.value;
-  submitEraseBtn.disabled = true;
-  payLaterItemsDiv.innerHTML = "";
+eraseStaff.addEventListener('change', async ()=>{
+  eraseSubmit.disabled = true;
+  eraseItemsDiv.innerHTML = '';
+  const s = eraseStaff.value;
+  if (!s) return;
+  const list = await fetch(baseApiUrl+'?type=balances&staff='+encodeURIComponent(s)).then(r=>r.json()).catch(()=>[]);
+  if (!list.length){ eraseItemsDiv.innerHTML = '<div class="muted">No items to erase.</div>'; return; }
 
-  if (!staffName) return;
-
-  const list = await fetch(baseApiUrl + '?type=paylater&staff=' + encodeURIComponent(staffName)).then(r => r.json());
-  if (!list.length) {
-    payLaterItemsDiv.innerHTML = "<p>No Pay Later items.</p>";
-    return;
-  }
-
-  // Render: checkbox + qty (max = outstanding)
-  const html = list.map(p => `
-    <div class="row">
-      <input type="checkbox" class="erase-chk" value="${p.item}" data-unit="${p.unit}" data-max="${p.quantity}">
-      <label>${p.item} (${p.quantity} ${p.unit})</label>
-      <input type="number" class="erase-qty" min="1" max="${p.quantity}" placeholder="Qty" disabled>
+  eraseItemsDiv.innerHTML = list.map(p=>`
+    <div class="itemrow">
+      <input type="checkbox" class="chk" value="${p.item}" data-max="${p.quantity}">
+      <div>${p.item} <span class="muted">(${p.quantity} ${p.unit||''})</span></div>
+      <input type="number" class="q" min="1" max="${p.quantity}" placeholder="Qty" disabled>
     </div>
   `).join('');
-  payLaterItemsDiv.innerHTML = html;
 });
 
-// Event delegation for enabling qty and button state
-payLaterItemsDiv.addEventListener('change', (e) => {
-  if (e.target.classList.contains('erase-chk')) {
-    const row = e.target.closest('.row');
-    const qty = row.querySelector('.erase-qty');
-    qty.disabled = !e.target.checked;
-    if (!e.target.checked) qty.value = '';
+eraseItemsDiv.addEventListener('change', e=>{
+  if (e.target.classList.contains('chk')){
+    const row=e.target.closest('.itemrow');
+    const q=row.querySelector('.q');
+    q.disabled=!e.target.checked; if (!e.target.checked){ q.value=''; }
   }
-
-  // enable submit if any checked & qty>0
-  let ok = false;
-  document.querySelectorAll('#payLaterItems .row').forEach(r => {
-    const chk = r.querySelector('.erase-chk');
-    const qty = r.querySelector('.erase-qty');
-    if (chk.checked && Number(qty.value) > 0) ok = true;
-  });
-  submitEraseBtn.disabled = !ok;
+  toggleEraseSubmit_();
 });
-
-payLaterItemsDiv.addEventListener('input', (e) => {
-  if (!e.target.classList.contains('erase-qty')) return;
-  const max = Number(e.target.getAttribute('max')) || 0;
-  let v = Number(e.target.value) || 0;
-  if (v > max) { v = max; e.target.value = v; }
-
-  let ok = false;
-  document.querySelectorAll('#payLaterItems .row').forEach(r => {
-    const chk = r.querySelector('.erase-chk');
-    const qty = r.querySelector('.erase-qty');
-    if (chk.checked && Number(qty.value) > 0) ok = true;
-  });
-  submitEraseBtn.disabled = !ok;
+eraseItemsDiv.addEventListener('input', e=>{
+  if (!e.target.classList.contains('q')) return;
+  const max = Number(e.target.getAttribute('max'))||0;
+  let v = Number(e.target.value)||0;
+  if (v>max){ v=max; e.target.value=v; }
+  toggleEraseSubmit_();
 });
+function toggleEraseSubmit_(){
+  let ok=false;
+  [...eraseItemsDiv.querySelectorAll('.itemrow')].forEach(r=>{
+    const c=r.querySelector('.chk'); const q=r.querySelector('.q');
+    if (c.checked && Number(q.value)>0) ok=true;
+  });
+  eraseSubmit.disabled=!ok;
+}
 
-// Submit Erase
-submitEraseBtn.addEventListener('click', async function () {
-  const originalText = submitEraseBtn.textContent;
-  submitEraseBtn.disabled = true;
-  submitEraseBtn.textContent = "Erasing...";
+eraseSubmit.addEventListener('click', async ()=>{
+  const staff = eraseStaff.value;
+  if (!staff){ alert('Pick staff'); return; }
+  const items=[];
+  [...eraseItemsDiv.querySelectorAll('.itemrow')].forEach(r=>{
+    const c=r.querySelector('.chk'); const q=r.querySelector('.q');
+    if (c.checked){ items.push({item:c.value, quantity: Number(q.value)||0}); }
+  });
+  if (!items.length){ alert('Select at least one item'); return; }
 
-  const staff = eraseStaffSelect.value;
-  if (!staff) {
-    alert("Select staff.");
-    submitEraseBtn.disabled = false;
-    submitEraseBtn.textContent = originalText;
-    return;
-  }
-
-  const rows = document.querySelectorAll('#payLaterItems .row');
-  const items = [];
-  rows.forEach(r => {
-    const chk = r.querySelector('.erase-chk');
-    const qty = r.querySelector('.erase-qty');
-    if (chk.checked) {
-      const want = Number(qty.value) || 0;
-      const max = Number(chk.getAttribute('data-max')) || 0;
-      if (want > 0) {
-        const use = Math.min(want, max); // safety
-        items.push({ item: chk.value, quantity: use });
-      }
+  eraseSubmit.disabled=true; eraseSubmit.textContent='Erasing...';
+  try{
+    if (navigator.onLine){
+      await fetch(baseApiUrl, {method:'POST', body:new URLSearchParams({action:'erase', staff, items: JSON.stringify(items)})});
+      alert('Erase done.');
+    }else{
+      const q = JSON.parse(localStorage.getItem('offlineErase')||'[]');
+      q.push({staff, items}); localStorage.setItem('offlineErase', JSON.stringify(q));
+      alert('Offline → queued erase.');
     }
-  });
-
-  if (!items.length) {
-    alert("Select at least one item with quantity.");
-    submitEraseBtn.disabled = false;
-    submitEraseBtn.textContent = originalText;
-    return;
-  }
-
-  try {
-    if (navigator.onLine) {
-      await fetch(baseApiUrl, {
-        method: 'POST',
-        body: new URLSearchParams({
-          action: 'erase',
-          staff,
-          items: JSON.stringify(items)
-        })
-      });
-      alert("Pay Later items erased successfully!");
-    } else {
-      // offline queue
-      let q = JSON.parse(localStorage.getItem('offlineErase') || '[]');
-      q.push({ staff, items });
-      localStorage.setItem('offlineErase', JSON.stringify(q));
-      alert("No internet. Erase saved locally and will sync when online.");
-    }
-    eraseModal.style.display = "none";
-  } catch (err) {
-    alert("Error submitting erase.");
-  } finally {
-    submitEraseBtn.disabled = false;
-    submitEraseBtn.textContent = originalText;
+    eraseModal.style.display='none';
+  }catch(e){
+    alert('Erase failed.');
+  }finally{
+    eraseSubmit.disabled=false; eraseSubmit.textContent='Submit Erase';
   }
 });
+eraseClose.addEventListener('click', ()=> eraseModal.style.display='none');
 
-// Close modal
-closeEraseBtn.addEventListener('click', () => {
-  eraseModal.style.display = "none";
+/* ==== PWA INSTALL ==== */
+window.addEventListener('beforeinstallprompt', (e)=>{
+  e.preventDefault();
+  deferredPrompt = e;
+  installFab.style.display='inline-flex';
+});
+installFab.addEventListener('click', async ()=>{
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const choice = await deferredPrompt.userChoice;
+  if (choice && choice.outcome!=='dismissed'){ installFab.style.display='none'; }
+  deferredPrompt = null;
 });
 
-// --- PWA install UI ---
-  let deferredPrompt = null;
-  const installBtn = document.getElementById('installBtn');
-
-  window.addEventListener('beforeinstallprompt', (e) => {
-    // Prevent the mini-infobar on mobile
-    e.preventDefault();
-    deferredPrompt = e;
-    // Show our custom install button
-    installBtn.style.display = 'inline-block';
-  });
-
-  installBtn.addEventListener('click', async () => {
-    if (!deferredPrompt) return;
-    installBtn.disabled = true;
-    deferredPrompt.prompt();
-    const choice = await deferredPrompt.userChoice;
-    // You can log choice.outcome === 'accepted' or 'dismissed'
-    deferredPrompt = null;
-    installBtn.style.display = 'none';
-    installBtn.disabled = false;
-  });
-
-  window.addEventListener('appinstalled', () => {
-    // Installed successfully
-    deferredPrompt = null;
-    installBtn.style.display = 'none';
-  });
-
-  // iOS hint (Safari walang beforeinstallprompt). Optional:
-  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  const isInStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-  if (isIOS && !isInStandalone) {
-    // Pwede kang magpakita ng maliit na tip/badge kung gusto mo.
-    // Example: alert('iOS: Use Share > Add to Home Screen para i-install.');
-  }
-
-  // ---------- REGISTER SERVICE WORKER ----------
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
+/* ==== SW REGISTER ==== */
+if ('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
     navigator.serviceWorker.register('serviceworker.js')
-      .then(reg => console.log("✅ Service Worker registered:", reg.scope))
-      .catch(err => console.error("❌ Service Worker failed:", err));
+      .then(reg=>console.log('SW:', reg.scope))
+      .catch(err=>console.error('SW fail:', err));
   });
 }
 </script>
 </body>
 </html>
-
-
-
-
