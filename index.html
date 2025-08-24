@@ -233,20 +233,38 @@ eraseOpenBtn.addEventListener('click', async ()=>{
 
 eraseStaff.addEventListener('change', async ()=>{
   eraseSubmit.disabled = true;
-  eraseItemsDiv.innerHTML = '';
+  eraseItemsDiv.innerHTML = ''; // clear old items
   const s = eraseStaff.value;
   if (!s) return;
-  const list = await fetch(baseApiUrl+'?type=balances&staff='+encodeURIComponent(s)).then(r=>r.json()).catch(()=>[]);
-  if (!list.length){ eraseItemsDiv.innerHTML = '<div class="muted">No items to erase.</div>'; return; }
 
-  eraseItemsDiv.innerHTML = list.map(p=>`
-    <div class="itemrow">
+  // fetch fresh balances
+  let list = [];
+  try {
+    list = await fetch(baseApiUrl+'?type=balances&staff='+encodeURIComponent(s))
+              .then(r=>r.json());
+  } catch(e){
+    console.error('Failed to load balances', e);
+  }
+
+  if (!list.length){
+    eraseItemsDiv.innerHTML = '<div class="muted">No items to erase.</div>';
+    return;
+  }
+
+  // Render fresh list
+  eraseItemsDiv.innerHTML = '';
+  list.forEach(p=>{
+    const row = document.createElement('div');
+    row.className = 'itemrow';
+    row.innerHTML = `
       <input type="checkbox" class="chk" value="${p.item}" data-max="${p.quantity}">
       <div>${p.item} <span class="muted">(${p.quantity} ${p.unit||''})</span></div>
       <input type="number" class="q" min="1" max="${p.quantity}" placeholder="Qty" disabled>
-    </div>
-  `).join('');
+    `;
+    eraseItemsDiv.appendChild(row);
+  });
 });
+
 
 eraseItemsDiv.addEventListener('change', e=>{
   if (e.target.classList.contains('chk')){
@@ -326,3 +344,4 @@ if ('serviceWorker' in navigator){
 </script>
 </body>
 </html>
+
