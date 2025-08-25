@@ -341,7 +341,13 @@ if ('serviceWorker' in navigator){
       .catch(err=>console.error('SW fail:', err));
   });
 }
+ // Refresh buong page every 60 seconds (1 minute)
+  setTimeout(function() {
+    location.reload();
+  }, 60000);
+  
 </script>
 </body>
 </html>
+
 
