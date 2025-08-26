@@ -1,4 +1,4 @@
-const CACHE_NAME = 'staff-consumption-v17';
+const CACHE_NAME = 'staff-consumption-v18';
 const APP_SHELL = [
   '/',
   '/index.html',
@@ -52,5 +52,6 @@ self.addEventListener('fetch', (event)=>{
     })
   );
 });
+
 
 
